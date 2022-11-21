@@ -1,6 +1,8 @@
 ﻿using GameData.Domains.TaiwuEvent.EventHelper;
+using GameData.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,17 +58,34 @@ namespace Qsc
         public readonly string Description;
         public readonly string[] OptionDescrs;
         public BaseEditorEvent[] Dests;
+        public readonly int[] chances;
 
-        public PlayerSelectEvent (string description, string[] optionDescrs, BaseEditorEvent[] dests)
+        public PlayerSelectEvent(string description, string[] optionDescrs, BaseEditorEvent[] dests)
         {
+            if (optionDescrs.Length != dests.Length)
+            {
+                throw new InvalidOperationException("Incorrect event list!");
+            }
             Description = description;
             OptionDescrs = optionDescrs;
             Dests = dests;
+            chances = Enumerable.Repeat(100, dests.Length).ToArray();
+        }
+        public PlayerSelectEvent(string description, string[] optionDescrs, BaseEditorEvent[] dests, int[] chances)
+        {
+            if (optionDescrs.Length != dests.Length || optionDescrs.Length != chances.Length)
+            {
+                throw new InvalidOperationException("Incorrect event list!");
+            }
+            Description = description;
+            OptionDescrs = optionDescrs;
+            Dests = dests;
+            this.chances = chances;
         }
     }
     public class GetGoldEvent: BaseEditorEvent
     {
-        public override string Entry() { return; }
+        public override string Entry() { return "20db3563-41bc-42de-b5db-d48e949004f5"; }
 
         public readonly int baseGold;
         public readonly int GoldPerWorld;
@@ -83,13 +102,40 @@ namespace Qsc
     }
     public class HealingEvent: BaseEditorEvent
     {
-        public override string Entry() { return; }
+        public override string Entry() { return "73479eab-8c22-4ad5-81ef-3d3072773532"; }
 
         public readonly int healCount;
         public HealingEvent (int heal)
         {
             healCount = heal;
         }
+    }
+    public class ForgeEvent: BaseEditorEvent
+    {
+        public override string Entry() { return "1349f475-ab70-4d8c-a228-42717a5b02ff"; }
+        public LootTable table;
+        public ForgeEvent(LootTable table=null)
+        {
+            this.table = table;
+            if (table == null)
+            {
+                this.table = ForgeEvent.DefaultTbl;
+            }
+        }
+        private static readonly LootTable DefaultTbl = new LootTable(
+            new LootTableEntry[] {
+            new LootTableEntry(QscData.LootClass.Weapon, 1, 80),
+            new LootTableEntry(QscData.LootClass.Weapon, 1, 40),
+            new LootTableEntry(QscData.LootClass.Weapon, 1, 0),
+            new LootTableEntry(QscData.LootClass.Armor, 1, 80),
+            new LootTableEntry(QscData.LootClass.Armor, 1, 40),
+            new LootTableEntry(QscData.LootClass.Armor, 1, 0),
+            new LootTableEntry(QscData.LootClass.Jewelry, 2, 30),
+            new LootTableEntry(QscData.LootClass.Jewelry, 1, 0),
+            new LootTableEntry(QscData.LootClass.Material, 1, 120),
+            new LootTableEntry(QscData.LootClass.JingzhiMaterial, 1, 100),
+
+            }, 1);
     }
     public class EditorBattleEvent: BaseEditorEvent
     {
@@ -131,14 +177,14 @@ namespace Qsc
     {
         public override string Entry() { return "05d730a1-734c-4eff-b377-8dfd75187f40"; }
         // 包装了simplelootevent，用LootTableEntry控制生成的东西
-        public LootTableEntry[] Table;
+        public LootTable Table;
         public int count;
         public int gold;
-        public EditorSimpleLootGenEvent(LootTableEntry[] t, int pickcount, int goldPerUnpicked=0)
+        public EditorSimpleLootGenEvent(LootTable t, int countOverride=-1, int goldPerUnpicked=0)
         {
-            this.count = pickcount;
-            this.gold = goldPerUnpicked;
             Table = t;
+            this.count = countOverride;
+            this.gold = goldPerUnpicked;
         }
     }
 
@@ -160,7 +206,7 @@ namespace Qsc
             this.gold = gold;
         }
     }
-
+    
     public class EditorSimpleSkillGenEvent : BaseEditorEvent
     {
         public override string Entry() { return "84c4968e-db08-418d-bc19-0141ddd41d62"; }
@@ -168,26 +214,36 @@ namespace Qsc
         public GongFaType[][] allowedTypes; // dim 1: index dim2: array of allowed
         public int[] qualityBonus;
         public int gold;
-        public EditorSimpleSkillGenEvent(int count, GongFaType[] type, int[] qualitybonus, int gold)
+        /*public EditorSimpleSkillGenEvent(int count, GongFaType[] type, int[] qualitybonus, int gold)
         {
             this.count = count;
             allowedTypes = Enumerable.Repeat(type, count).ToArray();
             qualityBonus = qualitybonus;
             this.gold = gold;
-        }
-        public EditorSimpleSkillGenEvent(int count, GongFaType[] type, int qualitybonus, int gold)
+        }*/
+        public EditorSimpleSkillGenEvent(int count, int genCount, GongFaType[] type, int qualitybonus, int gold)
+            : this(count, Enumerable.Repeat(type, genCount).ToArray(), Enumerable.Repeat(qualitybonus, genCount).ToArray(),gold)
         {
-            this.count = count;
-            allowedTypes = Enumerable.Repeat(type, count).ToArray();
-            qualityBonus = Enumerable.Repeat(qualitybonus, count).ToArray();
-            this.gold = gold;
+            /*
+             * copies type and qualitybonus into array and passes it to the other constructor.
+             * 
+             */
         }
         public EditorSimpleSkillGenEvent(int count, GongFaType[][]type, int[] qualityBonus, int gold)
         {
+            /*
+             * 
+             * 
+             */
+            if (type.Length != qualityBonus.Length)
+            {
+                throw new ArgumentException("Incorrect EditorSimpleSkillGenEvent setup(2)");
+            }
             this.count = count;
             allowedTypes = type;
             this.qualityBonus = qualityBonus;
             this.gold = gold;
+            AdaptableLog.Info($"create ESSG event with {this.count} out of {this.allowedTypes.Length} ");
         }
     }
 

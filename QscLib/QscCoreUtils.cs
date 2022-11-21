@@ -30,6 +30,8 @@ namespace Qsc
         ShuFang = 8,
         LongYuFu = 100,
         ZiWuXiao = 101,
+        HuanXin = 200,
+        RanChenZi = 300,
 }
     public class GradeTable
     {
@@ -55,7 +57,7 @@ namespace Qsc
             return impl.Draw(ev, affix);
         }
     }
-    public class RandomWeightedTable<T> where T : struct
+    public class RandomWeightedTable<T> // where T : struct
     {
         List<int> weightsSoFar;
         public List<T> items;
@@ -74,9 +76,9 @@ namespace Qsc
             {
                 weightsSoFar.Add(weightsSoFar.Last() + weights[i]);
             }
-            AdaptableLog.Info("Init RWT done, wsf="+
-                String.Join(',', weightsSoFar)
-                );
+            //AdaptableLog.Info("Init RWT done, wsf="+
+            //    String.Join(',', weightsSoFar)
+            //    );
             Normalize();
         }
         public RandomWeightedTable(RandomWeightedTable<T> t1, int w1, RandomWeightedTable<T> t2, int w2):
@@ -93,10 +95,10 @@ namespace Qsc
             int maxWeight = 0;
             for (int i = 0; i < t.Length; i++)
             {
-                AdaptableLog.Info("mergin rwt with " +
-                String.Join(',', t[i].weightsSoFar) + "\nand " +
-                String.Join(',', t[i].items)
-                );
+                //AdaptableLog.Info("mergin rwt with " +
+                //String.Join(',', t[i].weightsSoFar) + "\nand " +
+                //String.Join(',', t[i].items)
+                //);
                 items = items.Concat(t[i].items).ToList();
                 weightsSoFar = weightsSoFar.Concat(
                     t[i].weightsSoFar.ConvertAll(
@@ -168,20 +170,26 @@ namespace Qsc
     }*/
     public class QscCoreUtils
     {
+        public static int lastCheckProgress = 100;
         public static int GetQscProgress(TaiwuEvent ev)
         {
             /* 规定 1 为刚结束和衣服的对话，也是能获取到的最小值
-             * 规定 100 对应九品世界主进度（0精纯），110对应八品世界主进度（2精纯），一直到180对应一品世界主进度（18精纯）
-             * 
+             * 规定 100 对应九品世界主进度（0精纯）(没打第一个boss）
+             * 110对应八品世界主进度（2精纯），一直到180对应一品世界主进度（18精纯）
+             * 之后190是紫/龙二选一 200是焕心。
+             * 没打染尘子是210
+             * 打完染尘子就不是210了，跳到1000（全部结束） 
              * */
             int result = -1;
             var res = ev.GetModData("qsc_progress", true, ref result);
             if (res)
             {
+                lastCheckProgress = result;
                 return result;
             }
             else
             {
+                lastCheckProgress = 1;
                 QscCoreUtils.SetQscProgress(ev, 1);
             }
             return 1;
@@ -191,6 +199,14 @@ namespace Qsc
             if (which < 0)
             {
                 which = GetWorldState(ev);
+            }
+            if (which == 10)
+            {
+                return XiangShuType.HuanXin;
+            }
+            if (which == 11)
+            {
+                return XiangShuType.RanChenZi;
             }
             int result = -1;
             bool res = ev.GetModData("qsc_boss0", true, ref result);
@@ -203,9 +219,9 @@ namespace Qsc
                     {
                         order = order.OrderBy((x) => { return r.Next(); }).ToArray();
                         if (order[0] != 3 && order[1] != 3 && order[0] != 4 && order[1] != 4
-                            && order[1] != 8) break;
+                            && order[2] != 8) break;
                     }
-                    for(int i = 0; i < 8; i++)
+                    for(int i = 0; i < 9; i++)
                     {
                         ev.SetModInt("qsc_boss" + i, true, order[i]);
                     }
@@ -213,21 +229,25 @@ namespace Qsc
                 }
             }
             res = ev.GetModData("qsc_boss" + which, true, ref result);
-            if (! res || which > 9 || which < 0)
+            if (! res || which > 11 || which < 0)
             {
-                throw new InvalidOperationException("Get next boss failed.");
+                throw new InvalidOperationException("Get next boss failed: which="+which);
             }
+            AdaptableLog.Info($"Getting world boss for state {which}=>{result}");
+
             return (XiangShuType)result;
         }
         public static int GetWorldState(TaiwuEvent ev)
         {
-            // 返回0-8：前8个boss，9=龙/紫，10=焕心，11=染
-            return QscCoreUtils.GetQscProgress(ev) / 10 - 10;
+            // 返回0-8：前9个boss，9=龙/紫，10=焕心，11=染
+            var result = QscCoreUtils.GetQscProgress(ev) / 10 - 10;
+            //AdaptableLog.Info($"Worldstate is{QscCoreUtils.GetQscProgress(ev)}=>{result}");
+            return result;
 
         }
         public static void SetQscProgress(TaiwuEvent ev, int prog)
         {
-            
+            lastCheckProgress = prog;
             ev.SetModInt("qsc_progress", true, prog);
         }
         public static int GetQscSubProgress(TaiwuEvent ev)
@@ -244,6 +264,18 @@ namespace Qsc
         public static void SetQscSubProgress(TaiwuEvent ev, int prog)
         {
             ev.SetModInt("qsc_subprogress", true, prog);
+        }
+        public static void IncreaseQscSubProgress(TaiwuEvent ev)
+        {
+            int orig = GetQscSubProgress(ev);
+            int ws = GetWorldState(ev);
+
+            SetQscSubProgress(ev, orig + QscDependencyPlugin.ProgressPerEvent + ws/3);
+
+        }
+        public static bool QscStageFinished(TaiwuEvent ev)
+        {
+            return GetQscSubProgress(ev) > 100;
         }
         static Random rnd = new Random();
         public static int RandInt32(TaiwuEvent ev, int min, int max, string affix = "")
@@ -290,12 +322,13 @@ namespace Qsc
                QscCoreUtils.EventList.Add(DestEvent);
                EventHelper.ToEvent(DestEvent.Entry());
              */
-            AdaptableLog.Info("[QscCore.CallEvent] entry " + Event.Entry());
+            //AdaptableLog.Info("[QscCore.CallEvent] entry " + Event.Entry());
             QscCoreUtils.EventList.Add(new TransitionDummyEvent(MyReturn));
             QscCoreUtils.EventList.Add(Event);
+            //AdaptableLog.Info("[QscCore.CallEvent] Stack after push:");
+            //QscCoreUtils.PrintStack();
             if (doJump) EventHelper.ToEvent(Event.Entry());
-            AdaptableLog.Info("[QscCore.CallEvent] Stack after push:");
-            QscCoreUtils.PrintStack();
+
 
             return Event.Entry();
         }
@@ -304,9 +337,9 @@ namespace Qsc
         {
             // 事件执行结束的时候执行。如果stack空了就结束，否则跳到上一个事件的入口
             // 这个函数会把栈顶pop掉，注意不要pop两次....
-            AdaptableLog.Info("[QscCore.Return] Stack before pop:");
+            //AdaptableLog.Info("[QscCore.Return] Stack before pop:");
 
-            QscCoreUtils.PrintStack();
+            //QscCoreUtils.PrintStack();
             string NextEvent = "";
             if (QscCoreUtils.EventList.Count > 1)
             {

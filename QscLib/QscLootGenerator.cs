@@ -4,7 +4,6 @@ using GameData.Domains.Item;
 using GameData.Domains.TaiwuEvent;
 using GameData.Domains.TaiwuEvent.EventHelper;
 using GameData.Utilities;
-using QscLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
@@ -31,9 +30,9 @@ namespace Qsc
  
     public class QscLootGenerator
     {
-        public static LootTableEntry[] GetLootTableFromBlock(EMapBlockSubType type)
+        public static LootTable GetLootTableFromBlock(EMapBlockSubType type)
         {
-            LootTableEntry[] result = null;
+            LootTable result = null;
             switch (type)
             {
                 case EMapBlockSubType.Farmland:

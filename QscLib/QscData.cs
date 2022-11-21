@@ -40,17 +40,17 @@ namespace Qsc
         public static GradeTable[] GenWeights = // TODO change this to dict that has -1, -2
         {
            // new GradeTable(new int[] {80, 10, 05, 00, 00, 00, 00, 00, 00 }), 
-            new GradeTable(new int[] {60, 25, 10, 05, 00, 00, 00, 00, 00 }), 
-            new GradeTable(new int[] {25, 60, 25, 12, 06, 03, 01, 01, 00 }),
-            new GradeTable(new int[] {20, 25, 60, 25, 12, 06, 03, 01, 01 }),
+            new GradeTable(new int[] {40, 25, 10, 05, 00, 00, 00, 00, 00 }), 
+            new GradeTable(new int[] {25, 40, 15, 12, 06, 03, 01, 01, 00 }),
+            new GradeTable(new int[] {20, 25, 40, 10, 05, 05, 01, 00, 00 }),
 
-            new GradeTable(new int[] {15, 20, 25, 60, 25, 12, 06, 03, 01 }),
-            new GradeTable(new int[] {10, 15, 20, 25, 60, 25, 12, 06, 03 }),
-            new GradeTable(new int[] {10, 10, 15, 20, 25, 60, 25, 12, 06 }),
+            new GradeTable(new int[] {15, 20, 25, 40, 10, 05, 01, 01, 00 }),
+            new GradeTable(new int[] {10, 15, 20, 25, 40, 10, 05, 01, 01 }),
+            new GradeTable(new int[] {10, 10, 15, 20, 25, 40, 10, 05, 01 }),
 
-            new GradeTable(new int[] {10, 10, 10, 15, 20, 25, 60, 25, 12 }),
-            new GradeTable(new int[] {10, 10, 10, 10, 15, 20, 25, 60, 25 }),
-            new GradeTable(new int[] {10, 10, 10, 10, 10, 15, 20, 25, 60 }), 
+            new GradeTable(new int[] {10, 10, 10, 15, 20, 25, 40, 10, 5 }),
+            new GradeTable(new int[] {10, 10, 10, 10, 15, 20, 25, 40, 10 }),
+            new GradeTable(new int[] {10, 10, 10, 10, 10, 15, 20, 25, 40 }), 
            // new GradeTable(new int[] {01, 01, 01, 01, 01, 05, 10, 18, 30 }), 
            // new GradeTable(new int[] {01, 01, 01, 01, 01, 01, 01, 10, 50 }),
         };

@@ -18,7 +18,7 @@ using GameData.Domains.Building;
 using GameData.Domains.Combat;
 using HarmonyLib;
 
-namespace QscLib
+namespace Qsc
 {
     public class QscHelper
     {
@@ -146,10 +146,8 @@ namespace QscLib
             ItemBase item = IDomain.GetBaseItem(itemKey);
             sbyte resourceType = ItemTemplateHelper.GetResourceType(itemKey.ItemType, itemKey.TemplateId);
             bool flag = resourceType == -1;
-            List<ItemDisplayData> list;
             if (flag)
             {
-                list = null;
             }
             else
             {

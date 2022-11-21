@@ -124,7 +124,7 @@ namespace Qsc
         public static List<ItemKey> GenerateItemList(TaiwuEvent ev, QscData.LootClass loot, GradeTable levelchance, int count, string affix = "")
         {
             // generate a list of reward items, weighted by level chance, level chance need to be length 9...
-            AdaptableLog.Info("Create Item Class" + loot);
+            // AdaptableLog.Info("Create Item Class" + loot);
 
             int[][] sources = QscData.LootClassMap[(int)loot];
             var creator = QscData.LootCreator[(int)loot];
