@@ -80,8 +80,10 @@ namespace Qsc
 
         public static void removeFromGongFaTbl(short id)
         {
+            //if (id >= 723) return;
             var Skill = Config.CombatSkill.Instance.GetItem(id);
-            bool result = QscGongFaData.GongFaGradeMap[Skill.Type][Skill.Grade].Remove(id);
+            
+            bool result = GetGongFaTbl()[Skill.Type][Skill.Grade].Remove(id);
             if (! result)
             {
                 AdaptableLog.Info("Attempt to remove " + Skill.TemplateId + Skill.Name + " from GongFaTbl but cannot find it.");
@@ -95,7 +97,7 @@ namespace Qsc
 
 
 
-        public static List<short>[][] GongFaGradeMap = null;
+        private static List<short>[][] GongFaGradeMap = null;
 
 
         public static int[][] NewJuejiGradeMap = new int[][]

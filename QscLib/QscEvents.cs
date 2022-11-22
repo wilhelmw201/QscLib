@@ -16,7 +16,7 @@ namespace Qsc
             RandomWeightedTable<BaseEventCollection> result = null;
             switch (type)
             {
- 
+                case EMapBlockSubType.Canyon:
                 case EMapBlockSubType.HerbalGarden:
                     result = YaoYuanTbl;
                     break;
@@ -82,7 +82,7 @@ namespace Qsc
             public static EditorSimpleLootGenEvent yygen = new EditorSimpleLootGenEvent(null, -1, 100);
             public static PlayerSelectEvent Sel =
                 new PlayerSelectEvent(
-                    "你来到了一片药园之中...\n你可以花时间疗伤，或者四处搜寻物品......",
+                    "此处灵气旺盛...\n你可以花时间疗伤，或者四处搜寻物品......",
                     new string[] {"奋力疗伤...", "四处搜刮..."},
                     new BaseEditorEvent[] {healev, yygen}
                     );

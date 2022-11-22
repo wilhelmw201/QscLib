@@ -82,7 +82,7 @@ namespace Qsc
             if (count >= 5) return false;
 
             IDomain.SetRefinedEffects(context, IDomain.GetBaseItem(targetKey), count, matKey.TemplateId);
-            TWDomain.GetTaiwu().RemoveItem(context, matKey, 1, 0, true);
+            TWDomain.GetTaiwu().RemoveItem(context, matKey, 1, 0, false);
 
             return true;
         }

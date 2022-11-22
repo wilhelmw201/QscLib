@@ -23,19 +23,22 @@ namespace Qsc
     {
         public static List<ItemKey> SimpleGenerateItemList(TaiwuEvent ev, QscData.LootClass loot, int qualityModifier, int count, string affix = "")
         {
-            int worldState = QscCoreUtils.GetWorldState(ev);
+            int worldState = QscCoreUtils.GetWorldState(ev); 
             int baseChancesIdx = Math.Clamp(worldState + qualityModifier / 100, 0, 8);
+            int leftover = qualityModifier % 100;
+            int mixmod = Math.Abs(leftover);
             int otherChancesIdx = baseChancesIdx;
-            int mixmod = Math.Abs(qualityModifier) % 100;
-            if (qualityModifier > 0 && baseChancesIdx != 8)
+            if (leftover > 0 && baseChancesIdx != 8)
             {
                 otherChancesIdx = baseChancesIdx + 1;
             }
-            else if (qualityModifier < 0 && baseChancesIdx != 0)
+            else if (leftover < 0 && baseChancesIdx != 0)
             {
                 otherChancesIdx = baseChancesIdx - 1;
             }
             GradeTable TmpTable = new GradeTable(QscData.GenWeights[baseChancesIdx], 100 - mixmod, QscData.GenWeights[otherChancesIdx], mixmod);
+            AdaptableLog.Info($"base{baseChancesIdx}, other{otherChancesIdx}, tbl=" + TmpTable);
+
             return GenerateItemList(ev, loot, TmpTable, count, affix);
 
         }
@@ -124,7 +127,7 @@ namespace Qsc
         public static List<ItemKey> GenerateItemList(TaiwuEvent ev, QscData.LootClass loot, GradeTable levelchance, int count, string affix = "")
         {
             // generate a list of reward items, weighted by level chance, level chance need to be length 9...
-            // AdaptableLog.Info("Create Item Class" + loot);
+            AdaptableLog.Info("Create Item Class" + loot);
 
             int[][] sources = QscData.LootClassMap[(int)loot];
             var creator = QscData.LootCreator[(int)loot];
@@ -134,9 +137,11 @@ namespace Qsc
                 int grade = levelchance.Draw(ev, affix);
                 int[] source = sources[grade];
                 short itemID = (short) source[QscCoreUtils.RandInt32(ev, 0, source.Length, affix)];
-                //AdaptableLog.Info("Create Item Grade" + grade + "id" +itemID);
-                //AdaptableLog.Info("Source is " + String.Join(',', source));
+                AdaptableLog.Info("Create Item Grade" + grade + "id" +itemID);
+                AdaptableLog.Info("Source is " + String.Join(',', source));
                 ItemKey created = creator(GameData.Domains.DomainManager.TaiwuEvent.MainThreadDataContext, itemID);
+                AdaptableLog.Info($"=> {created.Id}, {created.ItemType}, {created.TemplateId}" );
+
                 result.Add(created);
             }
             return result;

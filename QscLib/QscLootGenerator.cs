@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static Qsc.QscGongFaData;
@@ -121,19 +122,20 @@ namespace Qsc
         }
         public static int GenerateLootCharFromTable(TaiwuEvent ev, LootTableEntry[] table, string affix)
         {
+            
             int charid = EventHelper.CreateNonIntelligentCharacter(217); // 麻烦一下冯婆婆
-            // remove undesired items...
+            // 清理
             Character LootChar = EventHelper.GetCharacterById(charid);
-            AdaptableLog.Info("Created char " + charid + " with " + LootChar.GetInventory().Items.Count + " items");
             Dictionary<ItemKey, int> OrigItems = new Dictionary<ItemKey, int>(LootChar.GetInventory().Items);
             foreach (var Item in OrigItems)
             {
                 LootChar.RemoveInventoryItem(DomainManager.TaiwuEvent.MainThreadDataContext, Item.Key, Item.Value, true);
             }
-            // create items...
+            // 创建
             AdaptableLog.Info("Cleaned char " + charid + " with " + LootChar.GetInventory().Items.Count + " items");
             foreach (var LootEntry in table)
             {
+                AdaptableLog.Info($"LootEntry:{LootEntry.type}, {LootEntry.qualityBonus}");
                 var res = QscLootUtil.SimpleGenerateItemList(ev, LootEntry.type, LootEntry.qualityBonus, LootEntry.count, affix);
                 LootChar.AddInventoryItemList(DomainManager.TaiwuEvent.MainThreadDataContext, res);
             }
@@ -162,7 +164,14 @@ namespace Qsc
             {
                 result.Add((short)EligibleGongFa[i]);
             }
-            AdaptableLog.Info("QscGenerateRandomGongFa: Try to gen " + count + " GongFa, returning " + result.Count + "elements");
+            
+            if (grade != 0 && (count > result.Count))
+            {
+                AdaptableLog.Info("QscGenerateRandomGongFa: Try to gen " + count + " GongFa, getting " + result.Count + "elements. Trying to generate at level" + (grade - 1));
+                List<short> remaining = GenerateRandomGongFa(ev, GongFaType, grade - 1, count - result.Count);
+                result = result.Concat(remaining).ToList();
+            }
+            
             return result;
         }
 

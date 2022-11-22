@@ -150,6 +150,10 @@ namespace Qsc
             }
 
         }
+        public override string ToString()
+        {
+            return "[RWTbl]weightSoFar=" + String.Join(',', weightsSoFar) + "|items=" + String.Join(",", weightsSoFar); 
+        }
 
     }
     /*public class RandomWeightedTable<T> where T : class
@@ -269,8 +273,7 @@ namespace Qsc
         {
             int orig = GetQscSubProgress(ev);
             int ws = GetWorldState(ev);
-
-            SetQscSubProgress(ev, orig + QscDependencyPlugin.ProgressPerEvent + ws/3);
+            SetQscSubProgress(ev, orig + QscDependencyPlugin.ProgressPerEvent);
 
         }
         public static bool QscStageFinished(TaiwuEvent ev)

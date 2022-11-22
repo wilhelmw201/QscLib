@@ -23,7 +23,7 @@ namespace Qsc
     [PluginConfig("Qsc", "Wilhelmw", "0.01")]
     public class QscDependencyPlugin : TaiwuRemakePlugin
     {
-        public static int ProgressPerEvent = 10;
+        public static int ProgressPerEvent = 8;
 
 
         Harmony harmony;
@@ -44,7 +44,7 @@ namespace Qsc
             int steps = 10;
             GameData.Domains.DomainManager.Mod.GetSetting(this.ModIdStr, "steps", ref steps);
             AdaptableLog.Info($" 每阶段步数 {steps}");
-            if (steps <= 3) steps = 10;
+            if (steps <= 3) steps = 8;
             AdaptableLog.Info($" 每阶段步数 => {steps}");
 
             ProgressPerEvent = (int)Math.Ceiling(100.0 / steps);

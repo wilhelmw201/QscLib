@@ -51,6 +51,7 @@ namespace Qsc
             new GradeTable(new int[] {10, 10, 10, 15, 20, 25, 40, 10, 5 }),
             new GradeTable(new int[] {10, 10, 10, 10, 15, 20, 25, 40, 10 }),
             new GradeTable(new int[] {10, 10, 10, 10, 10, 15, 20, 25, 40 }), 
+            new GradeTable(new int[] {10, 10, 10, 10, 10, 15, 30, 40, 50 }), 
            // new GradeTable(new int[] {01, 01, 01, 01, 01, 05, 10, 18, 30 }), 
            // new GradeTable(new int[] {01, 01, 01, 01, 01, 01, 01, 10, 50 }),
         };
