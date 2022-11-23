@@ -123,7 +123,7 @@ namespace Qsc
         public static int GenerateLootCharFromTable(TaiwuEvent ev, LootTableEntry[] table, string affix)
         {
             
-            int charid = EventHelper.CreateNonIntelligentCharacter(217); // 麻烦一下冯婆婆
+            int charid = EventHelper.CreateNonIntelligentCharacter(211); // 随便抓一个动物
             // 清理
             Character LootChar = EventHelper.GetCharacterById(charid);
             Dictionary<ItemKey, int> OrigItems = new Dictionary<ItemKey, int>(LootChar.GetInventory().Items);

@@ -62,7 +62,7 @@ namespace Qsc
         static void CalcNeigongLoopingEffectPost(ref ValueTuple<short, short> __result)
         {
             if (!isActivated()) return;
-            __result = new ValueTuple<short, short>(short.MaxValue, __result.Item2);
+            __result = new ValueTuple<short, short>(900, __result.Item2);
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(CombatCharacter), "OnCombatEnd")]
@@ -140,7 +140,19 @@ namespace Qsc
             String DataHandlerKey = string.Format("CombatChar_{0}", this_id);
             GameDataBridge.RemovePostDataModificationHandler(this_poisonResistUid, DataHandlerKey);
             GameDataBridge.RemovePostDataModificationHandler(this_defeatMarkUid, DataHandlerKey);
-            
+
+            // repair items on taiwu
+            foreach (var dictItem in DomainManager.Taiwu.GetTaiwu().GetInventory().Items)
+            {
+                var itemKey = dictItem.Key;
+                // var itemcount = dictItem.Value;
+                ItemBase baseItem = DomainManager.Item.GetBaseItem(itemKey);
+                var iType = baseItem.GetItemType();
+                if (iType <= 2 && iType >= 0)
+                {
+                    baseItem.SetCurrDurability(baseItem.GetMaxDurability(), GameData.Domains.DomainManager.TaiwuEvent.MainThreadDataContext);
+                }
+            }
             return false;
         }
 

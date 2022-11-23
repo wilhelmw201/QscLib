@@ -83,6 +83,35 @@ namespace Qsc
             this.chances = chances;
         }
     }
+
+    public class QscMerchantEvent: BaseEditorEvent
+    {
+        public override string Entry() { throw new Exception(); }
+
+        public readonly int[] lootCharIds;
+        public readonly int[] prices;
+        public readonly String[] names;
+
+        public QscMerchantEvent(int[] lootCharIds, int[] prices, String[] names)
+        {
+            this.lootCharIds = lootCharIds;
+            this.prices = prices;
+            this.names = names;
+        }
+    }
+
+    public class SimpleShopJumpEvent: BaseEditorEvent
+    {
+        public override string Entry() { throw new Exception(); }
+        private int[] lootCharIds;
+    }
+
+    public class GetFriendEvent: BaseEditorEvent
+    {
+        public override string Entry() { throw new Exception(); }
+
+    }
+
     public class GetGoldEvent: BaseEditorEvent
     {
         public override string Entry() { return "20db3563-41bc-42de-b5db-d48e949004f5"; }

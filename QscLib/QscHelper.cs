@@ -77,8 +77,23 @@ namespace Qsc
             BuildingDomain BDDomain = DomainManager.Building;
             ItemDomain IDomain = DomainManager.Item;
 
-            var RefEffs = IDomain.GetRefinedEffects(targetKey);
-            int count = RefEffs.GetTotalRefiningCount();
+            ItemBase baseItemTgt = DomainManager.Item.GetBaseItem(targetKey);
+            if (!baseItemTgt.GetRefinable()) return false;
+            ItemBase baseItemMat = DomainManager.Item.GetBaseItem(matKey);
+            if (baseItemMat.GetItemType() != 5 || baseItemMat.GetTemplateId() > 139 || baseItemMat.GetTemplateId() < 84) return false;
+            
+            
+            bool flag = ModificationStateHelper.IsActive(baseItemTgt.GetModificationState(), 2);
+            RefiningEffects refinedEffects;
+            if (flag)
+            {
+                refinedEffects = IDomain.GetRefinedEffects(targetKey);
+            }
+            else
+            {
+                refinedEffects.Initialize();
+            }
+            int count = refinedEffects.GetTotalRefiningCount();
             if (count >= 5) return false;
 
             IDomain.SetRefinedEffects(context, IDomain.GetBaseItem(targetKey), count, matKey.TemplateId);
@@ -135,15 +150,18 @@ namespace Qsc
             //RemoveMaterial(context, character, poisonKey, 1, true);
             return true;
         }
+
         public static bool MyDisassemble(ItemKey itemKey)
         {
             ItemDomain IDomain = DomainManager.Item;
             TaiwuDomain TWDomain = DomainManager.Taiwu;
             DataContext context = DataContextManager.GetCurrentThreadDataContext();
 
-
             GameData.Domains.Character.Character character = TWDomain.GetTaiwu();
             ItemBase item = IDomain.GetBaseItem(itemKey);
+
+            if (item.GetItemType() > 2) return false;
+
             sbyte resourceType = ItemTemplateHelper.GetResourceType(itemKey.ItemType, itemKey.TemplateId);
             bool flag = resourceType == -1;
             if (flag)
